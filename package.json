@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "serve": "nx run-many --all --target=serve",
+    "build": "nx run-many --all --target=build",
     "lint": "nx workspace-lint && nx run-many --all --target=lint --parallel=5 --fix"
   },
   "private": true,
