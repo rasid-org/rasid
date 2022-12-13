@@ -28,7 +28,35 @@
     {
       "files": ["*.ts", "*.tsx"],
       "extends": ["plugin:@nrwl/nx/typescript"],
-      "rules": {}
+      "rules": {
+        "@typescript-eslint/consistent-type-imports": "error",
+        "func-style": ["error", "expression"],
+        "semi": ["error", "never"],
+        "react/jsx-sort-props": ["error"],
+        "import/order": [
+          "error",
+          {
+            "groups": [
+              "index",
+              "sibling",
+              "parent",
+              "internal",
+              "external",
+              "builtin",
+              "object",
+              "type"
+            ]
+          }
+        ],
+        "import/prefer-default-export": ["off"],
+        "react/function-component-definition": [
+          2,
+          {
+            "namedComponents": "arrow-function",
+            "unnamedComponents": "arrow-function"
+          }
+        ]
+      }
     },
     {
       "files": ["*.js", "*.jsx"],
