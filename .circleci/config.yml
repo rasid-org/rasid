@@ -38,7 +38,7 @@ jobs:
           paths:
             - workspace
 
-  run-lint:
+  lint:
     <<: *directory
     docker:
       - image: circleci/node:14
@@ -49,7 +49,7 @@ jobs:
           name: 'Run yarn lint'
           command: yarn lint
 
-  run-e2e:
+  e2e:
     <<: *directory
     docker:
       - image: circleci/node:14
@@ -70,7 +70,7 @@ jobs:
           name: 'Run E2E Tests'
           command: yarn e2e
 
-  run-unit:
+  unit:
     <<: *directory
     docker:
       - image: circleci/node:14
@@ -92,12 +92,12 @@ workflows:
       - bundle-dependencies:
           requires:
             - checkout-code
-      - run-lint:
+      - lint:
           requires:
             - bundle-dependencies
-      - run-e2e:
+      - e2e:
           requires:
             - bundle-dependencies
-      - run-unit:
+      - unit:
           requires:
             - bundle-dependencies
