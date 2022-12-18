@@ -7,7 +7,7 @@ jobs:
   checkout-code:
     <<: *directory
     docker:
-      - image: cimg/node:14
+      - image: cimg/node:19.2.0
     steps:
       - checkout
       - persist_to_workspace:
@@ -18,7 +18,7 @@ jobs:
   bundle-dependencies:
     <<: *directory
     docker:
-      - image: cimg/node:14
+      - image: cimg/node:19.2.0
     steps:
       - attach_workspace:
           at: ~/
@@ -40,7 +40,7 @@ jobs:
   lint:
     <<: *directory
     docker:
-      - image: cimg/node:14
+      - image: cimg/node:19.2.0
     steps:
       - attach_workspace:
           at: ~/
@@ -51,7 +51,7 @@ jobs:
   e2e:
     <<: *directory
     docker:
-      - image: cimg/node:14
+      - image: cimg/node:19.2.0
       - image: mariadb:10.9.4
         environment:
           MARIADB_ROOT_PASSWORD: root
@@ -71,7 +71,7 @@ jobs:
   unit:
     <<: *directory
     docker:
-      - image: cimg/node:14
+      - image: cimg/node:19.2.0
     steps:
       - attach_workspace:
           at: ~/
