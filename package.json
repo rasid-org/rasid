@@ -5,6 +5,8 @@
   "scripts": {
     "serve": "nx run-many --all --target=serve",
     "build": "nx run-many --all --target=build",
+    "e2e": "nx run-many --all --target=e2e",
+    "test": "nx run-many --all --target=test",
     "lint": "nx workspace-lint && nx run-many --all --target=lint --parallel=5 --fix"
   },
   "private": true,

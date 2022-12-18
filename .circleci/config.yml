@@ -1,21 +1,103 @@
 # This config is equivalent to both the '.circleci/extended/orb-free.yml' and the base '.circleci/config.yml'
 version: 2.1
 
-# Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
-# See: https://circleci.com/docs/2.0/orb-intro/
-orbs:
-  node: circleci/node@4.7
+.directory: &directory
+  working_directory: ~/workspace
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+jobs:
+  checkout-code:
+    <<: *directory
+    docker:
+      - image: circleci/node:14
+    steps:
+      - checkout
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - workspace
+
+  bundle-dependencies:
+    <<: *directory
+    docker:
+      - image: circleci/node:14
+    steps:
+      - attach_workspace:
+          at: ~/
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Dependencies
+          command: yarn install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "yarn.lock" }}
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - workspace
+
+  run-lint:
+    <<: *directory
+    docker:
+      - image: circleci/node:14
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: 'Run yarn lint'
+          command: yarn lint
+
+  run-e2e:
+    <<: *directory
+    docker:
+      - image: circleci/node:14
+      - image: mariadb:10.9.4
+        environment:
+          MARIADB_ROOT_PASSWORD: root
+    steps:
+      - attach_workspace:
+          at: ~/
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "yarn.lock" }}
+      - setup_remote_docker
+      - run:
+          name: Waiting for Mariadb
+          command: dockerize -wait tcp://localhost:3306 -timeout 1m
+      - run:
+          name: 'Run E2E Tests'
+          command: yarn e2e
+
+  run-unit:
+    <<: *directory
+    docker:
+      - image: circleci/node:14
+    steps:
+      - attach_workspace:
+          at: ~/
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "yarn.lock" }}
+      - setup_remote_docker
+      - run:
+          name: 'Run Unit Tests'
+          command: yarn run test
+
 workflows:
-  sample: # This is the name of the workflow, feel free to change it to better match your workflow.
-    # Inside the workflow, you define the jobs you want to run.
+  pipeline:
     jobs:
-      - node/test:
-          # This is the node version to use for the `cimg/node` tag
-          # Relevant tags can be found on the CircleCI Developer Hub
-          # https://circleci.com/developer/images/image/cimg/node
-          version: '16.10'
-          # If you are using yarn, change the line below from "npm" to "yarn"
-          pkg-manager: npm
+      - checkout-code
+      - bundle-dependencies:
+          requires:
+            - checkout-code
+      - run-lint:
+          requires:
+            - bundle-dependencies
+      - run-e2e:
+          requires:
+            - bundle-dependencies
+      - run-unit:
+          requires:
+            - bundle-dependencies
