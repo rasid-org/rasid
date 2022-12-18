@@ -86,7 +86,7 @@ jobs:
           command: yarn run test
 
 workflows:
-  pipeline:
+  app-pr:
     jobs:
       - checkout-code
       - bundle-dependencies:
